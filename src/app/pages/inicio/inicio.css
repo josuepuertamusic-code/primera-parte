@@ -1,0 +1,28 @@
+.hero h2 {
+  margin-top: 0;
+}
+
+.hero p {
+  color: #4f566b;
+  line-height: 1.5;
+  max-width: 700px;
+}
+
+.actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.actions a {
+  text-decoration: none;
+  background: #1f3c88;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.actions a.secondary {
+  background: #e9edf7;
+  color: #1f3c88;
+}

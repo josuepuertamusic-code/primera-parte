@@ -1,0 +1,19 @@
+<header class="topbar">
+  <h1>{{ title }}</h1>
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+    <a routerLink="/articulos" routerLinkActive="active">Articulos</a>
+    <a routerLink="/nuevo" routerLinkActive="active">Nuevo</a>
+  </nav>
+</header>
+
+<main class="layout">
+  <section class="content-card">
+    <router-outlet />
+  </section>
+</main>
+
+<footer class="footer">
+  <small>Avance de clase - Angular + datos mock</small>
+</footer>

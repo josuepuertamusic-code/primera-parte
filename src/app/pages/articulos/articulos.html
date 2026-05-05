@@ -1,0 +1,17 @@
+<h2>Listado de articulos</h2>
+<p class="helper">Vista inicial con datos simulados para demo.</p>
+
+<div class="grid">
+  @for (articulo of articulos; track articulo.id) {
+    <article class="card">
+      <header>
+        <h3>{{ articulo.titulo }}</h3>
+        <span [class]="articulo.estado">{{ articulo.estado }}</span>
+      </header>
+      <p>{{ articulo.resumen }}</p>
+      <footer>
+        <small>{{ articulo.autor }} - {{ articulo.fecha | date: 'dd/MM/yyyy' }}</small>
+      </footer>
+    </article>
+  }
+</div>

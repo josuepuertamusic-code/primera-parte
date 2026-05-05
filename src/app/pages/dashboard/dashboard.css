@@ -1,0 +1,23 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.85rem;
+}
+
+.stats article {
+  background: #f2f5fd;
+  border: 1px solid #dbe3f7;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.stats h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f3c88;
+}
+
+.stats p {
+  margin: 0.25rem 0 0;
+  color: #4f566b;
+}
