@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distribución de frecuencias</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="contenedor">
+      <p class="sobretitulo">Estadística descriptiva · Datos numéricos</p>
+      <h1>Calculadora de distribución de frecuencias</h1>
+      <p>Pega tus números y la página construye la tabla de frecuencias, calcula todas las medidas y dibuja los gráficos.
+        Cada resultado tiene la <strong>fórmula</strong>, los <strong>números reemplazados</strong> y una
+        <strong>explicación en palabras sencillas</strong>, para que cualquiera lo entienda aunque no sepa estadística.</p>
+    </div>
+  </header>
+
+  <nav class="menu" aria-label="Secciones del análisis">
+    <div class="contenedor menu-links">
+      <a href="#datos">1. Datos</a>
+      <a href="#resumen">2. Resumen</a>
+      <a href="#pasos">3. Construcción</a>
+      <a href="#tabla">4. Tabla</a>
+      <a href="#graficos">5. Gráficos</a>
+      <a href="#central">6. Tendencia</a>
+      <a href="#posicion">7. Posición</a>
+      <a href="#dispersion">8. Dispersión</a>
+      <a href="#forma">9. Forma</a>
+      <a href="#regresion">10. Regresión</a>
+      <a href="#promedios">11. Promedios</a>
+      <a href="#glosario">12. Glosario</a>
+    </div>
+  </nav>
+
+  <main class="contenedor">
+
+    <!-- GUÍA -->
+    <section class="panel guia">
+      <h2>¿Cómo se usa esta página?</h2>
+      <ol class="pasos-guia">
+        <li><strong>Escribe o pega tus números</strong> en el cuadro de la sección 1 (uno por línea, también sirve copiar una columna de Excel). Si solo quieres ver cómo funciona, pulsa <em>«Usar ejemplo»</em>.</li>
+        <li><strong>Pulsa «Calcular»</strong>. Todo lo demás se llena solo.</li>
+        <li><strong>Lee de arriba hacia abajo.</strong> Cada sección tiene un recuadro <span class="chip-ayuda">¿Qué significa?</span> con la explicación en palabras sencillas.</li>
+        <li>Al final puedes <strong>descargar el Excel</strong> o <strong>guardar en PDF</strong>.</li>
+      </ol>
+    </section>
+
+    <!-- 1. DATOS -->
+    <section id="datos" class="panel">
+      <h2><span class="num">1</span> Tus datos</h2>
+      <div class="fila-campos">
+        <label class="campo campo-ancho">Nombre de la variable (lo que mediste)
+          <input id="titulo" value="Unidades vendidas" autocomplete="off">
+        </label>
+        <label class="campo">Decimales para mostrar resultados
+          <select id="decimales">
+            <option value="0">0 decimales</option>
+            <option value="1">1 decimal</option>
+            <option value="2" selected>2 decimales</option>
+            <option value="3">3 decimales</option>
+            <option value="4">4 decimales</option>
+          </select>
+        </label>
+      </div>
+      <label class="campo">Números (uno por línea; puedes pegar una columna de Excel o un CSV)
+        <textarea id="entrada" rows="8" spellcheck="false" placeholder="150&#10;80&#10;210&#10;95&#10;340"></textarea>
+      </label>
+      <p id="conteo" class="nota">0 números. Se necesitan al menos 2.</p>
+      <ul id="errores" class="errores" hidden></ul>
+      <div class="acciones">
+        <button id="btnCalcular" class="principal">Calcular</button>
+        <button id="btnEjemplo1" class="secundario">Usar ejemplo: unidades vendidas</button>
+        <button id="btnEjemplo2" class="secundario">Usar ejemplo: precio unitario (con decimales)</button>
+        <label class="boton secundario archivo">Subir archivo CSV
+          <input id="archivo" type="file" accept=".csv,.txt,text/csv,text/plain">
+        </label>
+        <button id="btnLimpiar" class="peligro">Borrar datos</button>
+      </div>
+      <details class="ayuda">
+        <summary>¿Qué significa?</summary>
+        <p><strong>Datos</strong> son las mediciones que quieres analizar: por ejemplo, las ventas de cada día, las edades de un grupo o las notas de un curso.
+          A la cantidad total de datos se le llama <strong>n</strong>. Para decimales puedes usar punto o coma (187,5 o 187.5).</p>
+      </details>
+    </section>
+
+    <div id="resultados" hidden>
+
+      <div class="barra-exportar panel">
+        <span>¿Listo? Guarda tus resultados:</span>
+        <button id="btnExcel" class="principal">Descargar Excel</button>
+        <button id="btnPdf" class="secundario">Imprimir / Guardar PDF</button>
+      </div>
+
+      <!-- 2. RESUMEN -->
+      <section id="resumen" class="panel">
+        <h2><span class="num">2</span> Resumen rápido</h2>
+        <div id="tarjetas" class="tarjetas"></div>
+        <div id="resumenTexto" class="explicacion"></div>
+      </section>
+
+      <!-- 3. PASO A PASO -->
+      <section id="pasos" class="panel">
+        <h2><span class="num">3</span> Cómo se construye la tabla, paso a paso</h2>
+        <p class="nota">Para organizar muchos datos se agrupan en <strong>intervalos</strong> (rangos como 60–108, 109–157…). Estos cuatro pasos son los mismos que se hacen a mano o en Excel.</p>
+        <div id="pasosContenido" class="pasos"></div>
+      </section>
+
+      <!-- 4. TABLA -->
+      <section id="tabla" class="panel">
+        <h2><span class="num">4</span> Tabla de distribución de frecuencias</h2>
+        <div id="tablaFrecuencias"></div>
+        <div id="tablaInterpretacion" class="explicacion"></div>
+        <details class="ayuda" open>
+          <summary>¿Qué significa cada columna?</summary>
+          <dl class="definiciones">
+            <dt><span class="muestra-color"></span> Color</dt><dd>Cada intervalo tiene un color diferente y lo conserva en esta tabla, en todos los gráficos y en el Excel. Así es fácil reconocer cada intervalo en cualquier gráfico.</dd>
+            <dt>Ci</dt><dd>Número de la clase o intervalo (1, 2, 3…).</dd>
+            <dt>Menor / Mayor</dt><dd>Desde qué valor empieza el intervalo y hasta cuál llega (ambos incluidos).</dd>
+            <dt>fi · frecuencia absoluta</dt><dd>Cuántos datos caen dentro del intervalo.</dd>
+            <dt>Fi · frecuencia absoluta acumulada</dt><dd>Cuántos datos hay desde el primer intervalo hasta este. Se suma fi fila por fila.</dd>
+            <dt>hi · frecuencia relativa</dt><dd>Qué parte del total representa el intervalo: hi = fi ÷ n. Multiplicado por 100 es el porcentaje.</dd>
+            <dt>Hi · frecuencia relativa acumulada</dt><dd>Qué porcentaje de los datos está hasta este intervalo: Hi = Fi ÷ n. La última fila siempre es 100 %.</dd>
+            <dt>Mi · marca de clase</dt><dd>El punto medio del intervalo: Mi = (menor + mayor) ÷ 2. Representa a todos los datos del intervalo.</dd>
+            <dt>fi · Mi</dt><dd>Se usa para calcular la media con datos agrupados.</dd>
+          </dl>
+        </details>
+      </section>
+
+      <!-- 5. GRÁFICOS -->
+      <section id="graficos" class="panel">
+        <h2><span class="num">5</span> Gráficos</h2>
+        <p class="nota">Cada intervalo tiene <strong>su propio color</strong> y lo conserva en todos los gráficos (por ejemplo, el intervalo 1 siempre es azul y el 2 siempre es naranja). Pasa el mouse (o toca) sobre un gráfico para ver el valor exacto.</p>
+        <div id="leyenda" class="leyenda" aria-label="Colores de los intervalos"></div>
+        <div class="grilla-graficos">
+          <figure class="grafico">
+            <h3>Histograma (diagrama de barras)</h3>
+            <div class="lienzo"><canvas id="gBarras" role="img" aria-label="Histograma de frecuencias"></canvas></div>
+            <figcaption><strong>Cómo leerlo:</strong> cada barra es un intervalo; mientras más alta, más datos tiene. <span id="txtBarras"></span></figcaption>
+          </figure>
+          <figure class="grafico">
+            <h3>Diagrama circular (pastel)</h3>
+            <div class="lienzo"><canvas id="gPastel" role="img" aria-label="Diagrama circular"></canvas></div>
+            <figcaption><strong>Cómo leerlo:</strong> el círculo completo es el 100 % de los datos; cada porción es un intervalo y su tamaño es su porcentaje (hi). <span id="txtPastel"></span></figcaption>
+          </figure>
+          <figure class="grafico">
+            <h3>Polígono de frecuencias</h3>
+            <div class="lienzo"><canvas id="gPoligono" role="img" aria-label="Polígono de frecuencias"></canvas></div>
+            <figcaption><strong>Cómo leerlo:</strong> une con una línea el centro de cada intervalo (marca de clase Mi) a la altura de su frecuencia. Se agrega un punto en cero al inicio y al final para cerrar la figura. Muestra la <em>forma</em> de los datos: dónde hay “montañas” (mucha concentración) y “valles”. <span id="txtPoligono"></span></figcaption>
+          </figure>
+          <figure class="grafico">
+            <h3>Ojiva (frecuencia acumulada)</h3>
+            <div class="lienzo"><canvas id="gOjiva" role="img" aria-label="Ojiva"></canvas></div>
+            <figcaption><strong>Cómo leerlo:</strong> muestra qué porcentaje de los datos se va acumulando. Siempre sube y termina en 100 %. Si buscas 50 % en el eje vertical, debajo encuentras aproximadamente la mediana. <span id="txtOjiva"></span></figcaption>
+          </figure>
+        </div>
+        <figure class="grafico grafico-ancho">
+          <h3>Diagrama de caja y bigotes</h3>
+          <div id="gCaja" class="caja-svg"></div>
+          <figcaption><strong>Cómo leerlo:</strong> la caja va del cuartil 1 (Q1) al cuartil 3 (Q3) y contiene el 50 % central de los datos. La línea dentro de la caja es la mediana. Los “bigotes” llegan hasta el dato más bajo y el más alto que no son atípicos. Los puntos sueltos (si aparecen) son <strong>valores atípicos</strong>: datos demasiado lejos del resto. <span id="txtCaja"></span></figcaption>
+        </figure>
+      </section>
+
+      <!-- 6. TENDENCIA CENTRAL -->
+      <section id="central" class="panel">
+        <h2><span class="num">6</span> Medidas de tendencia central</h2>
+        <p class="nota">Responden a la pregunta: <strong>¿cuál es el valor “típico” o del centro de mis datos?</strong></p>
+        <div id="tablaCentral"></div>
+        <div id="centralTexto" class="explicacion"></div>
+      </section>
+
+      <!-- 7. POSICIÓN -->
+      <section id="posicion" class="panel">
+        <h2><span class="num">7</span> Medidas de posición (cuartiles y percentiles)</h2>
+        <p class="nota">Ordenan los datos de menor a mayor y los parten en pedazos. Responden: <strong>¿qué valor deja por debajo a cierto porcentaje de los datos?</strong></p>
+        <div id="tablaPosicion"></div>
+        <div class="calculadora">
+          <h3>Calcula cualquier percentil</h3>
+          <div class="fila-campos">
+            <label class="campo">Percentil que quieres (1 a 99)
+              <input id="pk" type="number" min="1" max="99" value="60">
+            </label>
+            <button id="btnPk" class="principal">Calcular percentil</button>
+          </div>
+          <div id="resPk" class="explicacion"></div>
+        </div>
+        <details class="ayuda">
+          <summary>¿Cómo se calcula un percentil?</summary>
+          <p>Se usa el mismo método que Excel (PERCENTIL.INC y CUARTIL.INC):</p>
+          <ol>
+            <li>Se ordenan los datos de menor a mayor.</li>
+            <li>Se calcula la posición: <code>posición = 1 + (n − 1) × p</code>, donde p es el porcentaje en decimal (25 % = 0,25).</li>
+            <li>Si la posición es un número entero, el percentil es el dato en esa posición.</li>
+            <li>Si tiene decimales (por ejemplo 25,75), se toma el dato 25 y se le suma el 0,75 de la distancia hasta el dato 26.</li>
+          </ol>
+        </details>
+        <div>
+          <h3>Tus datos ordenados de menor a mayor</h3>
+          <div id="ordenados" class="ordenados"></div>
+        </div>
+      </section>
+
+      <!-- 8. DISPERSIÓN -->
+      <section id="dispersion" class="panel">
+        <h2><span class="num">8</span> Medidas de variabilidad o dispersión</h2>
+        <p class="nota">Responden: <strong>¿los datos están todos cerca del promedio o muy separados unos de otros?</strong></p>
+        <div id="tablaDispersion"></div>
+        <div id="dispersionTexto" class="explicacion"></div>
+        <details class="ayuda">
+          <summary>¿Poblacional o muestral? ¿Cuál uso?</summary>
+          <p><strong>Poblacional (÷ n):</strong> cuando tienes <em>todos</em> los datos que te interesan (por ejemplo, las ventas de todos los días del año). Es la que usa el Excel de clase (VARP y DESVESTP).</p>
+          <p><strong>Muestral (÷ (n − 1)):</strong> cuando tus datos son solo una <em>parte</em> (muestra) y quieres sacar conclusiones de un grupo más grande. Se divide entre n − 1 para corregir que una muestra suele subestimar la variación real. En Excel es VAR.S y DESVEST.M.</p>
+        </details>
+      </section>
+
+      <!-- 9. FORMA -->
+      <section id="forma" class="panel">
+        <h2><span class="num">9</span> Forma de la distribución</h2>
+        <p class="nota">Responden: <strong>¿los datos están equilibrados a ambos lados del centro? ¿forman un pico alto o una forma aplanada?</strong></p>
+        <div id="tablaForma"></div>
+        <div id="formaTexto" class="explicacion"></div>
+        <div class="formas-ilustracion" id="formasIlustracion"></div>
+      </section>
+
+      <!-- 10. REGRESIÓN -->
+      <section id="regresion" class="panel">
+        <h2><span class="num">10</span> Regresión y tendencia</h2>
+        <p class="nota">Busca la fórmula (curva) que mejor describe cómo cambian los datos <strong>según el orden en que los escribiste</strong>.
+          <strong>X</strong> es la posición del dato (1, 2, 3…) y <strong>Y</strong> es su valor. Se prueban cinco modelos y se elige el que mejor se ajusta.</p>
+        <div id="tablaRegresion"></div>
+        <figure class="grafico grafico-ancho">
+          <h3>Datos y modelo elegido</h3>
+          <div class="lienzo lienzo-alto"><canvas id="gRegresion" role="img" aria-label="Diagrama de dispersión con el modelo elegido"></canvas></div>
+          <figcaption><strong>Cómo leerlo:</strong> los puntos azules son tus datos en el orden en que los escribiste; la línea naranja es el modelo. Mientras más cerca pasen los puntos de la línea, mejor describe el modelo a los datos.</figcaption>
+        </figure>
+        <div id="regresionTexto" class="explicacion"></div>
+        <details class="ayuda">
+          <summary>¿Qué son R², R² ajustado y r?</summary>
+          <p><strong>R² (coeficiente de determinación)</strong> va de 0 a 1 e indica qué parte de la variación de los datos explica el modelo. 1 es un ajuste perfecto; cerca de 0 significa que el modelo casi no explica nada. Aquí se mide sobre los valores originales para comparar todos los modelos en la misma escala, por eso puede salir negativo cuando un modelo ajusta peor que usar simplemente el promedio.</p>
+          <p><strong>R² ajustado</strong> es R² con una pequeña penalización por cada coeficiente extra, para que el modelo polinómico (que tiene tres coeficientes) no gane solo por ser más flexible. Se elige el modelo con mayor R² ajustado.</p>
+          <p><strong>r de Pearson</strong> va de −1 a 1 y mide si los valores tienden a subir (r positivo) o a bajar (r negativo) a medida que avanza el orden. Cerca de 0 = no hay tendencia.</p>
+        </details>
+      </section>
+
+      <!-- 11. LOS CUATRO PROMEDIOS -->
+      <section id="promedios" class="panel">
+        <h2><span class="num">11</span> Los cuatro promedios con tus datos</h2>
+        <p class="nota">Todo lo de esta sección se calcula con <strong>los mismos valores que escribiste en la sección 1</strong>.
+          Hay cuatro formas de sacar un promedio, y cada una sirve para un tipo de dato distinto.</p>
+        <div id="promediosContenido"></div>
+      </section>
+
+      <!-- 12. GLOSARIO -->
+      <section id="glosario" class="panel">
+        <h2><span class="num">12</span> Glosario y fórmulas utilizadas</h2>
+        <div id="glosarioContenido" class="formulas"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="pie contenedor">
+    <p>Los cálculos siguen las mismas fórmulas del Excel de clase (REDONDEAR.MAS, PERCENTIL.INC, VARP, DESVESTP, COEFICIENTE.ASIMETRIA, CURTOSIS y moda de Czuber).</p>
+  </footer>
+
+  <script src="estadistica.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
